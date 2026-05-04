@@ -1,36 +1,45 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# biz-grader
 
-## Getting Started
+A free single-page tool that grades a business website on SEO, page speed, mobile, and Lighthouse best-practices. Real data — DataForSEO + Google PageSpeed Insights. Visitors can email themselves the report (Resend).
 
-First, run the development server:
+## Local dev
 
 ```bash
+cp .env.example .env.local
+# fill in DATAFORSEO_LOGIN, DATAFORSEO_PASSWORD, RESEND_API_KEY
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open http://localhost:3000.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Required env vars
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+| Var | Required | Notes |
+| --- | --- | --- |
+| `DATAFORSEO_LOGIN` | yes | DataForSEO account email |
+| `DATAFORSEO_PASSWORD` | yes | DataForSEO API password |
+| `RESEND_API_KEY` | only for email capture | Get one at resend.com |
+| `RESEND_FROM` | no | Defaults to Resend's onboarding sender. Set to a verified-domain address before going live. |
+| `STRATEGY_CALL_URL` | no | CTA link in the email |
+| `BRAND_NAME` | no | Footer brand in the email |
 
-## Learn More
+PageSpeed Insights is unauthenticated and rate-limited; for production traffic add a `PAGESPEED_API_KEY` later.
 
-To learn more about Next.js, take a look at the following resources:
+## Deploy to Vercel
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+1. Push this repo to GitHub.
+2. Import it at https://vercel.com/new — accept the Next.js defaults.
+3. In **Project → Settings → Environment Variables**, paste the values from your `.env.local`.
+4. Each push to a non-default branch gets a preview URL automatically.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## How the score is built
 
-## Deploy on Vercel
+| Pillar | Weight | Source |
+| --- | --- | --- |
+| SEO | 35% | DataForSEO SERP — keywords ranking + average position |
+| Speed | 25% | PageSpeed Insights performance score |
+| Mobile | 20% | PageSpeed accessibility + performance (50/50) |
+| Best Practices | 20% | PageSpeed best-practices score |
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+A scan takes ~30-60 seconds because PageSpeed runs Lighthouse server-side.

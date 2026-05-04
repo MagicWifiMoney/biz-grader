@@ -1,20 +1,29 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { Resend } from 'resend'
 
-const resend = new Resend(process.env.RESEND_API_KEY)
+const FROM_ADDRESS = process.env.RESEND_FROM || 'BizGrader <onboarding@resend.dev>'
+const STRATEGY_CALL_URL = process.env.STRATEGY_CALL_URL || 'https://quietcoyotemn.com'
+const BRAND_NAME = process.env.BRAND_NAME || 'Quiet Coyote'
 
 export async function POST(req: NextRequest) {
   try {
-    const { email, scanId, domain, grade, scores } = await req.json()
+    const { email, domain, grade, scores } = await req.json()
 
-    if (!email || !email.includes('@')) {
+    if (!email || typeof email !== 'string' || !email.includes('@')) {
       return NextResponse.json({ error: 'Valid email required' }, { status: 400 })
     }
+    if (!domain || !grade || !scores) {
+      return NextResponse.json({ error: 'Missing scan data' }, { status: 400 })
+    }
 
-    const reportUrl = `${req.headers.get('origin') || 'https://bizgrader.com'}/scan/${scanId}`
+    if (!process.env.RESEND_API_KEY) {
+      console.error('RESEND_API_KEY is not set')
+      return NextResponse.json({ error: 'Email service is not configured' }, { status: 500 })
+    }
 
+    const resend = new Resend(process.env.RESEND_API_KEY)
     await resend.emails.send({
-      from: 'BizGrader <hello@dogbathroomart.com>',
+      from: FROM_ADDRESS,
       to: email,
       subject: `Your Website Grade: ${grade} — ${domain}`,
       html: `
@@ -32,8 +41,8 @@ export async function POST(req: NextRequest) {
 <body>
 <div class="container">
   <h1>Your Website Report</h1>
-  <p style="color:rgba(255,255,255,0.6)">Here's your full score breakdown for <strong style="color:#a78bfa">${domain}</strong></p>
-  
+  <p style="color:rgba(255,255,255,0.6)">Here's your score breakdown for <strong style="color:#a78bfa">${domain}</strong></p>
+
   <div style="text-align:center; padding: 30px 0;">
     <div class="grade-badge">${grade}</div>
     <p style="font-size:48px; font-weight:900; margin:0; color:white">${scores?.overall ?? '—'}</p>
@@ -44,18 +53,16 @@ export async function POST(req: NextRequest) {
     <div class="score-row"><span>SEO</span><strong>${scores?.seo ?? '—'}/100</strong></div>
     <div class="score-row"><span>Page Speed</span><strong>${scores?.speed ?? '—'}/100</strong></div>
     <div class="score-row"><span>Mobile</span><strong>${scores?.mobile ?? '—'}/100</strong></div>
-    <div class="score-row" style="border:none"><span>Local Presence</span><strong>${scores?.local ?? '—'}/100</strong></div>
+    <div class="score-row" style="border:none"><span>Best Practices</span><strong>${scores?.bestPractices ?? '—'}/100</strong></div>
   </div>
 
+  <p style="color:rgba(255,255,255,0.6)">Want help fixing these? Book a free 30-minute strategy call and we'll walk you through the highest-impact wins for your site.</p>
   <div style="text-align:center">
-    <a href="${reportUrl}" class="btn">View Full Report →</a>
+    <a href="${STRATEGY_CALL_URL}" class="btn">Book Free Strategy Call</a>
   </div>
-
-  <p style="color:rgba(255,255,255,0.6)">Want to improve these scores? Book a free 30-minute strategy call with our team and we'll walk you through exactly what to fix first.</p>
-  <a href="https://quietcoyotemn.com" class="btn" style="background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.15)">Book Free Strategy Call</a>
 
   <div class="footer">
-    <p>Powered by <a href="https://quietcoyotemn.com" style="color:#a78bfa">Quiet Coyote</a> · You're receiving this because you requested a report for ${domain}</p>
+    <p>Powered by <a href="${STRATEGY_CALL_URL}" style="color:#a78bfa">${BRAND_NAME}</a> · You're receiving this because you requested a report for ${domain}</p>
   </div>
 </div>
 </body>
