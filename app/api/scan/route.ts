@@ -6,7 +6,7 @@ import { calculateGrade, generateQuickWins, buildIssuesList } from '@/lib/scorin
 import type { ScanResult } from '@/lib/types'
 
 export const runtime = 'nodejs'
-export const maxDuration = 60
+export const maxDuration = 120
 
 function normalizeUrl(input: string): { fullUrl: string; domain: string } | null {
   const trimmed = input.trim()

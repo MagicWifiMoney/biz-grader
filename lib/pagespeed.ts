@@ -18,7 +18,7 @@ export async function getPageSpeedData(url: string): Promise<PageSpeedData> {
 
     const response = await fetch(apiUrl, { 
       next: { revalidate: 0 },
-      signal: AbortSignal.timeout(30000),
+      signal: AbortSignal.timeout(90000),
     })
     
     if (!response.ok) {
