@@ -13,7 +13,8 @@ export interface PageSpeedData {
 export async function getPageSpeedData(url: string): Promise<PageSpeedData> {
   try {
     const encodedUrl = encodeURIComponent(url)
-    const apiUrl = `https://www.googleapis.com/pagespeedonline/v5/runPagespeed?url=${encodedUrl}&strategy=mobile&category=performance&category=accessibility&category=seo&category=best-practices`
+    const keyParam = process.env.PAGESPEED_API_KEY ? `&key=${process.env.PAGESPEED_API_KEY}` : ''
+    const apiUrl = `https://www.googleapis.com/pagespeedonline/v5/runPagespeed?url=${encodedUrl}&strategy=mobile&category=performance&category=accessibility&category=seo&category=best-practices${keyParam}`
 
     const response = await fetch(apiUrl, { 
       next: { revalidate: 0 },
