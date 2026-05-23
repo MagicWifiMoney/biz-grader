@@ -1,7 +1,9 @@
-const DATAFORSEO_LOGIN = process.env.DATAFORSEO_LOGIN!
-const DATAFORSEO_PASSWORD = process.env.DATAFORSEO_PASSWORD!
+const DATAFORSEO_LOGIN = process.env.DATAFORSEO_LOGIN
+const DATAFORSEO_PASSWORD = process.env.DATAFORSEO_PASSWORD
 
-const auth = Buffer.from(`${DATAFORSEO_LOGIN}:${DATAFORSEO_PASSWORD}`).toString('base64')
+const auth = DATAFORSEO_LOGIN && DATAFORSEO_PASSWORD
+  ? Buffer.from(`${DATAFORSEO_LOGIN}:${DATAFORSEO_PASSWORD}`).toString('base64')
+  : null
 
 export interface SEOData {
   keywordsRanking: number
@@ -11,7 +13,20 @@ export interface SEOData {
   score: number
 }
 
+export function hasDataForSEOCredentials(): boolean {
+  return auth !== null
+}
+
 export async function getSEOData(domain: string): Promise<SEOData> {
+  if (!auth) {
+    return {
+      keywordsRanking: 0,
+      topKeywords: [],
+      organicTrafficEstimate: 0,
+      competitors: [],
+      score: 0,
+    }
+  }
   try {
     // Clean domain
     const cleanDomain = domain.replace(/^https?:\/\//, '').replace(/\/.*$/, '').replace(/^www\./, '')

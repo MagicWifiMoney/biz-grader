@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { v4 as uuidv4 } from 'uuid'
-import { getSEOData } from '@/lib/dataforseo'
+import { getSEOData, hasDataForSEOCredentials } from '@/lib/dataforseo'
 import { getPageSpeedData } from '@/lib/pagespeed'
 import { calculateGrade, generateQuickWins, buildIssuesList } from '@/lib/scoring'
 import type { ScanResult } from '@/lib/types'
@@ -49,8 +49,11 @@ export async function POST(req: NextRequest) {
       )
     }
 
+    const dfsEnabled = hasDataForSEOCredentials()
+    const seoScore = dfsEnabled ? seoData.score : pageSpeedData.seoScore
+
     const scores = {
-      seo: Math.round(seoData.score),
+      seo: Math.round(seoScore),
       speed: Math.round(pageSpeedData.performanceScore),
       mobile: Math.round(pageSpeedData.accessibilityScore * 0.5 + pageSpeedData.performanceScore * 0.5),
       bestPractices: Math.round(pageSpeedData.bestPracticesScore),
