@@ -34,7 +34,7 @@ Open http://localhost:3000.
 | `STRATEGY_CALL_URL` | no | CTA link in the email |
 | `BRAND_NAME` | no | Footer brand in the email |
 
-PageSpeed Insights is unauthenticated and rate-limited; for production traffic add a `PAGESPEED_API_KEY` later.
+PageSpeed Insights is unauthenticated and rate-limited; for production traffic you can wire up a Google PageSpeed API key as a future enhancement.
 
 ## Deploy to Vercel
 

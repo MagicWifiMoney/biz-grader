@@ -51,7 +51,6 @@ export default function HeroSection() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           email: email.trim(),
-          scanId: result.id,
           domain: result.domain,
           grade: result.grade,
           scores: result.scores,
